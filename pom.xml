@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.Sanli</groupId>
-    <artifactId>pay-system</artifactId>
+    <artifactId>mall-system</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>pay-system</name>
-    <description>支付系统</description>
+    <name>mall-system</name>
+    <description>电商系统</description>
     <properties>
         <java.version>1.8</java.version>
     </properties>

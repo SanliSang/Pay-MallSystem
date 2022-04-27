@@ -11,6 +11,8 @@ spring:
     password: 333
   redis:
     host: 192.168.20.128
+  application:
+    name: Mall-System
 
 # Mybatis核心配置
 mybatis:
