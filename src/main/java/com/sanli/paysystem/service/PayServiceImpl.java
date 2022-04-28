@@ -1,5 +1,7 @@
 package com.sanli.paysystem.service;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.lly835.bestpay.enums.BestPayPlatformEnum;
 import com.lly835.bestpay.enums.BestPayTypeEnum;
 import com.lly835.bestpay.enums.OrderStatusEnum;
@@ -10,6 +12,7 @@ import com.sanli.paysystem.dao.PayInfoMapper;
 import com.sanli.paysystem.enums.PayPlatformTypeEnum;
 import com.sanli.paysystem.pojo.PayInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,18 +23,25 @@ import java.math.BigDecimal;
 @Service
 public class PayServiceImpl implements IPayService {
 
+    private final static String QUEUE_PAY_NOTIFY = "payNotify";
+
     @Autowired
     private BestPayServiceImpl bestPayService;
 
     @Autowired
     private PayInfoMapper payInfoMapper;
 
+    @Autowired
+    private AmqpTemplate amqpTemplate;
+
+    private Gson gson = new Gson();
+
     @Override
     public PayResponse create(String orderId , String orderAmount , BestPayTypeEnum bestPayTypeEnum) {
         // 创建请求
         PayRequest request = new PayRequest();
         request.setOrderId(orderId);
-        request.setOrderName("Hello World");
+        request.setOrderName("6480 原石");
         request.setPayTypeEnum(bestPayTypeEnum);
         request.setOrderAmount(Double.valueOf(orderAmount));
         // 发起请求
@@ -43,6 +53,7 @@ public class PayServiceImpl implements IPayService {
                 response.getOutTradeNo(),
                 OrderStatusEnum.NOTPAY.name(),
                 new BigDecimal(orderAmount));
+        log.info("PayInfo ===> {}",payInfo);
         payInfoMapper.insertSelective(payInfo);
 
         log.info("response = {}",response);
@@ -73,6 +84,9 @@ public class PayServiceImpl implements IPayService {
             payInfo.setPlatformNumber(payResponse.getOutTradeNo());
             payInfoMapper.updateByPrimaryKey(payInfo); // 更新订单状态
         }
+
+        // TODO 发送消息给指定队列，由Mall系统监听队列且对订单进行处理
+        amqpTemplate.convertAndSend(QUEUE_PAY_NOTIFY,gson.toJson(payInfo));
 
         // 判断支付平台，控制跳转
         if (payResponse.getPayPlatformEnum() == BestPayPlatformEnum.ALIPAY){

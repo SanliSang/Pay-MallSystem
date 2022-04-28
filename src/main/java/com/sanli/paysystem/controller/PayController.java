@@ -26,9 +26,10 @@ public class PayController {
     private WxPayConfig wxPayConfig;
 
     @GetMapping("/create")
-    public ModelAndView create(String orderId ,
-                               String orderAmount ,
+    public ModelAndView create(@RequestParam("orderId") String orderId ,
+                               @RequestParam("amount") String orderAmount ,
                                @RequestParam("payType") BestPayTypeEnum bestPayTypeEnum){
+
         if (bestPayTypeEnum == BestPayTypeEnum.WXPAY_NATIVE){
             PayResponse response = payService.create(orderId , orderAmount , bestPayTypeEnum); // 注意获取到的response的orderId以及orderAmount都是null
             HashMap<String, String> result = new HashMap<>();
@@ -37,11 +38,13 @@ public class PayController {
             result.put("ReturnUrl",wxPayConfig.getReturnUrl());
             result.put("CodeUrl",response.getCodeUrl());
             return new ModelAndView("WxNativePay",result);
+
         }else if (bestPayTypeEnum == BestPayTypeEnum.ALIPAY_PC){
             PayResponse response = payService.create(orderId, orderAmount, bestPayTypeEnum);
             HashMap<String, String> result = new HashMap<>();
             result.put("body",response.getBody());
             return new ModelAndView("AliPcPay",result);
+
         } else {
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put("message","暂不支持的支付类型！");
