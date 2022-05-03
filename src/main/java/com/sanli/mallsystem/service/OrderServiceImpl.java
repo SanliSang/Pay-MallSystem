@@ -229,6 +229,27 @@ public class OrderServiceImpl implements IOrderService{
         return ResponseVo.success();
     }
 
+    @Override
+    public void paid(Long orderNo) {
+        Order order = orderMapper.selectByOrderNo(orderNo);
+        // 因为调用paid方法之前肯定先调用了支付系统的create方法，此时支付系统中已经写入了订单，调用paid方法需要支付平台异步回调，所以若查不出来则表示异步回调有误
+        if (order == null){
+            throw new RuntimeException("查无此订单！"+orderNo);
+        }
+        Integer paymentStatus = order.getStatus();
+        if (PaymentStatusEnum.PAID.getStatus().equals(paymentStatus)) return; // 订单已经支付无需修改再次修改
+        else if (!PaymentStatusEnum.UNPAID.getStatus().equals(paymentStatus)){ // 只有未支付订单才需要可以修改，其他状态的订单不能修改
+            throw new RuntimeException("订单状态异常！修改支付订单失败！");
+        }
+        order.setStatus(PaymentStatusEnum.PAID.getStatus());
+        order.setPaymentTime(new Date());
+        order.setCloseTime(new Date());
+        int row = orderMapper.updateByPrimaryKeySelective(order);
+        if (row <= 0){
+            throw new RuntimeException("订单修改失败！");
+        }
+    }
+
     /**
      * 特别注意：这里要求传入的order与orderItemList、shipping要求必须是绑定关系，否则构造的OrderVo没有意义
      * @param order

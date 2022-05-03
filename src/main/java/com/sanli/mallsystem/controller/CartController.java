@@ -36,14 +36,14 @@ public class CartController {
     }
     @DeleteMapping("/carts/{productId}")
     public ResponseVo<CartVo> delete(HttpSession session ,
-                                     @Validated @PathVariable("productId") Integer productId){
+                                     @PathVariable("productId") Integer productId){
         User user = (User) session.getAttribute(CURRENT_USER);
         return cartService.delete(user.getId(),productId);
     }
 
     @PutMapping("/carts/{productId}")
     public ResponseVo<CartVo> update(HttpSession session ,
-                                     @Validated @PathVariable("productId") Integer productId ,
+                                     @PathVariable("productId") Integer productId ,
                                      @Validated @RequestBody CartUpdateForm form){
         User user = (User) session.getAttribute(CURRENT_USER);
         return cartService.update(user.getId(),productId,form);

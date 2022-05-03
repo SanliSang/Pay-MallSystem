@@ -50,4 +50,10 @@ public interface IOrderService {
      * @return
      */
     public ResponseVo cancel(Integer uid , Long orderNo);
+
+    /**
+     * 更改订单号的支付状态信息
+     * @param orderNo
+     */
+    public void paid(Long orderNo);
 }

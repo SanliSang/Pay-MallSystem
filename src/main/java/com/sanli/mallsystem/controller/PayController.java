@@ -7,6 +7,7 @@ import com.lly835.bestpay.model.PayResponse;
 import com.sanli.mallsystem.pojo.PayInfo;
 import com.sanli.mallsystem.service.PayServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class PayController {
     private PayServiceImpl payService;
 
     @Autowired
-    WxPayConfig wxPayConfig;
+    private WxPayConfig wxPayConfig;
 
     @GetMapping("/create")
     public ModelAndView create(String orderId , String orderAmount , @RequestParam("payType") BestPayTypeEnum bestPayTypeEnum){

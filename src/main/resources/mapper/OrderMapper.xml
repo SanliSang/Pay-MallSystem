@@ -206,6 +206,6 @@
   <select id="selectByOrderNo" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select *
     from mall_order
-    where order_no = #{orderNo,jdbcType=INTEGER}
+    where order_no = #{orderNo,jdbcType=BIGINT}
   </select>
 </mapper>
